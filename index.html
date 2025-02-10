@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pixel Love Story</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        body {
+            background-color: black;
+            text-align: center;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+        }
+        canvas {
+            border: 3px solid white;
+            display: block;
+            margin: 20px auto;
+            background: url('background-pixel.png') no-repeat center center;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>Collect All the Hearts! ❤️</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <p id="message"></p>
+    <audio id="bgMusic" src="background-music.mp3" loop></audio>
+    <audio id="heartSound" src="collect-heart.mp3"></audio>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const bgMusic = document.getElementById("bgMusic");
+        const heartSound = document.getElementById("heartSound");
+        
+        let player = { x: 50, y: 300, width: 40, height: 40, speed: 5 };
+        let hearts = [
+            { x: 200, y: 250, collected: false },
+            { x: 400, y: 200, collected: false },
+            { x: 600, y: 250, collected: false }
+        ];
+        let allCollected = false;
+
+        function drawPlayer() {
+            ctx.fillStyle = "pink";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawHearts() {
+            hearts.forEach(heart => {
+                if (!heart.collected) {
+                    ctx.fillStyle = "red";
+                    ctx.beginPath();
+                    ctx.arc(heart.x, heart.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawHearts();
+            checkCollision();
+            if (allCollected) {
+                document.getElementById("message").innerText = "Will you be mine? 💖";
+            }
+            requestAnimationFrame(update);
+        }
+
+        function checkCollision() {
+            hearts.forEach(heart => {
+                if (
+                    player.x < heart.x + 15 &&
+                    player.x + player.width > heart.x &&
+                    player.y < heart.y + 15 &&
+                    player.y + player.height > heart.y
+                ) {
+                    if (!heart.collected) {
+                        heart.collected = true;
+                        heartSound.play();
+                    }
+                }
+            });
+            allCollected = hearts.every(heart => heart.collected);
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") player.x += player.speed;
+            if (e.key === "ArrowLeft") player.x -= player.speed;
+        });
+        
+        window.onload = function() {
+            bgMusic.play();
+        }
+
+        update();
+    </script>
+</body>
+</html>
